@@ -1,0 +1,51 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: var(--font-garamond), Georgia, serif;
+  --font-serif: var(--font-playfair), Georgia, serif;
+  --font-display: var(--font-playfair), Georgia, serif;
+
+  /* Masters-inspired palette */
+  --color-forest: #1a3a2a;
+  --color-forest-dark: #122a1e;
+  --color-parchment: #f5f0e8;
+  --color-parchment-dark: #ebe3d5;
+  --color-gold: #c8a84b;
+  --color-gold-soft: #d8bf73;
+  --color-green: #2d5a3d;
+  --color-ink: #1c1c1c;
+  --color-crimson: #8b0000;
+
+  --color-background: var(--color-parchment);
+  --color-foreground: var(--color-ink);
+}
+
+:root {
+  color-scheme: light;
+}
+
+@layer base {
+  * {
+    border-color: color-mix(in srgb, var(--color-gold) 20%, transparent);
+  }
+  body {
+    background-color: var(--color-parchment);
+    color: var(--color-ink);
+  }
+  html {
+    font-family: var(--font-sans);
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  .font-display {
+    font-family: var(--font-display);
+  }
+}
+
+/* Tabular figures for score columns */
+.tabular {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
+}
