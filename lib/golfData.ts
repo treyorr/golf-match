@@ -1,4 +1,6 @@
 import * as XLSX from "xlsx"
+import { readFile } from "node:fs/promises"
+import path from "node:path"
 import type {
   Match,
   PlayerMatchStats,
@@ -11,6 +13,7 @@ import type {
 import { SAMPLE_MATCHES, SAMPLE_PAR, SAMPLE_SCORES } from "./sampleData"
 
 const EXCLUDED_SHEETS = ["Rules", "Match Log", "Stats", "Empty Scorecard Template"]
+const FALLBACK_WORKBOOK = "Golf Match Standings.xlsx"
 const POINTS = { eagle: 4, birdie: 2, par: 1, bogey: 1, double: 0.5, triple: 0 }
 
 export const EMOJI = {
@@ -30,9 +33,15 @@ export function slugify(course: string, date: string): string {
 }
 
 // Clamp obviously wrong years (e.g. typo 2526 -> 2026) back to 2026.
-function normalizeDate(raw: string): string {
+function normalizeDate(raw: unknown): string {
   if (!raw) return new Date().toISOString().slice(0, 10)
-  let d = raw.trim()
+  if (raw instanceof Date && !Number.isNaN(raw.getTime())) {
+    const y = raw.getFullYear() > 2100 ? 2026 : raw.getFullYear()
+    const m = String(raw.getMonth() + 1).padStart(2, "0")
+    const day = String(raw.getDate()).padStart(2, "0")
+    return `${y}-${m}-${day}`
+  }
+  let d = String(raw).trim()
   const match = d.match(/(\d{3,4})[-/](\d{1,2})[-/](\d{1,2})/)
   if (match) {
     let [, y, m, day] = match
@@ -58,6 +67,10 @@ function emojiFor(kind: keyof typeof POINTS): string {
 }
 
 // Build a complete scorecard from par + both players' hole scores.
+// Match-play rules: only the hole WINNER earns points (based on their
+// score-to-par). Halved holes award nothing.
+// When resultOverride is supplied (from the sheet's own Result row),
+// it takes precedence for winner / margin / moneyWon.
 function buildScorecard(
   course: string,
   date: string,
@@ -65,6 +78,7 @@ function buildScorecard(
   par: number[],
   trentScores: number[],
   treyScores: number[],
+  resultOverride?: { winner: Player | "Tie"; margin: number; moneyWon: number },
 ): Scorecard {
   const trentEmojis: string[] = []
   const treyEmojis: string[] = []
@@ -78,7 +92,6 @@ function buildScorecard(
   const yStats = emptyStats()
   let tHolesWon = 0
   let yHolesWon = 0
-  let upCount = 0 // positive = Trent up
   let tRun = 0
   let yRun = 0
 
@@ -88,8 +101,24 @@ function buildScorecard(
     trentEmojis.push(emojiFor(tKind))
     treyEmojis.push(emojiFor(yKind))
 
-    const tPts = POINTS[tKind]
-    const yPts = POINTS[yKind]
+    // Tally score-type counts (eagles, birdies, etc.) for both players always
+    tally(tStats, tKind)
+    tally(yStats, yKind)
+
+    // Match-play: only the hole winner gets points
+    let tPts = 0
+    let yPts = 0
+    if (trentScores[i] < treyScores[i]) {
+      // Trent wins this hole — award points based on his score type
+      tPts = POINTS[tKind]
+      tHolesWon += 1
+    } else if (treyScores[i] < trentScores[i]) {
+      // Trey wins this hole — award points based on his score type
+      yPts = POINTS[yKind]
+      yHolesWon += 1
+    }
+    // Halved hole: no points awarded to either player
+
     trentPointsPerHole.push(tPts)
     treyPointsPerHole.push(yPts)
     tRun += tPts
@@ -97,26 +126,22 @@ function buildScorecard(
     trentRunningPoints.push(round1(tRun))
     treyRunningPoints.push(round1(yRun))
 
-    tally(tStats, tKind)
-    tally(yStats, yKind)
-
-    if (trentScores[i] < treyScores[i]) {
-      upCount += 1
-      tHolesWon += 1
-    } else if (treyScores[i] < trentScores[i]) {
-      upCount -= 1
-      yHolesWon += 1
-    }
-    runningScore.push(formatMatchState(upCount))
+    // Running score = cumulative point differential
+    const diff = round1(tRun - yRun)
+    runningScore.push(formatMatchState(diff))
   }
 
   const trentTotal = sum(trentScores)
   const treyTotal = sum(treyScores)
   const parTotal = sum(par)
 
-  const winner: Player | "Tie" = upCount > 0 ? "Trent" : upCount < 0 ? "Trey" : "Tie"
-  const margin = Math.abs(upCount)
-  const moneyWon = margin * holeValue
+  // Use the sheet's authoritative result when available, else compute
+  const result: Scorecard["result"] = resultOverride ?? (() => {
+    const pointDiff = round1(tRun - yRun)
+    const winner: Player | "Tie" = pointDiff > 0 ? "Trent" : pointDiff < 0 ? "Trey" : "Tie"
+    const margin = round1(Math.abs(pointDiff))
+    return { winner, margin, moneyWon: round1(margin * holeValue) }
+  })()
 
   const trent: PlayerMatchStats = {
     front9: sum(trentScores.slice(0, 9)),
@@ -148,7 +173,7 @@ function buildScorecard(
     treyPointsPerHole,
     trentRunningPoints,
     treyRunningPoints,
-    result: { winner, margin, moneyWon },
+    result,
     matchStats: {
       trent: { ...trent, holesWon: tHolesWon, pointsWon: round1(tRun) },
       trey: { ...trey, holesWon: yHolesWon, pointsWon: round1(yRun) },
@@ -156,9 +181,11 @@ function buildScorecard(
   }
 }
 
-function formatMatchState(up: number): string {
-  if (up === 0) return "AS"
-  return up > 0 ? `Trent ${up}UP` : `Trey ${Math.abs(up)}UP`
+function formatMatchState(diff: number): string {
+  if (diff === 0) return "AS"
+  const abs = Math.abs(diff)
+  const label = Number.isInteger(abs) ? String(abs) : abs.toFixed(1)
+  return diff > 0 ? `Trent ${label}UP` : `Trey ${label}UP`
 }
 
 function emptyStats() {
@@ -188,13 +215,22 @@ function round1(n: number): number {
 
 async function getWorkbook(): Promise<XLSX.WorkBook | null> {
   const id = process.env.GOOGLE_SHEET_ID
-  if (!id) return null
+  if (id) {
+    try {
+      const url = `https://docs.google.com/spreadsheets/d/${id}/export?format=xlsx`
+      const res = await fetch(url, { next: { revalidate: 300 } })
+      if (res.ok) {
+        const buf = await res.arrayBuffer()
+        return XLSX.read(buf, { type: "array", cellDates: true })
+      }
+    } catch {
+      // Fall through to the local workbook below.
+    }
+  }
+
   try {
-    const url = `https://docs.google.com/spreadsheets/d/${id}/export?format=xlsx`
-    const res = await fetch(url, { next: { revalidate: 300 } })
-    if (!res.ok) return null
-    const buf = await res.arrayBuffer()
-    return XLSX.read(buf, { type: "array" })
+    const buf = await readFile(path.join(process.cwd(), FALLBACK_WORKBOOK))
+    return XLSX.read(buf, { type: "buffer", cellDates: true })
   } catch {
     return null
   }
@@ -226,33 +262,91 @@ function buildAllScorecards(wb: XLSX.WorkBook | null): Scorecard[] {
 }
 
 // Defensive scorecard sheet parser. Looks for "Par", "Trent", "Trey" rows.
+// Some sheets may have data shifted by one column (col offset), so we detect
+// the offset by finding where the "Par" label sits.
 function parseScorecardSheet(wb: XLSX.WorkBook, name: string): Scorecard | null {
   try {
-    const rows = XLSX.utils.sheet_to_json<(string | number)[]>(wb.Sheets[name], {
+    const rows = XLSX.utils.sheet_to_json<(string | number | Date)[]>(wb.Sheets[name], {
       header: 1,
       blankrows: false,
     })
+
+    // Detect column offset from the score row. The header also has an
+    // uppercase "PAR" total label, so prefer the exact row label first.
+    let colOffset = 0
+    let parRowIndex = -1
+    const findParLabel = (caseSensitive: boolean) => {
+      for (let ri = 0; ri < rows.length; ri++) {
+        const r = rows[ri]
+        for (let c = 0; c < r.length; c++) {
+          const value = String(r[c] ?? "").trim()
+          const matches = caseSensitive ? value === "Par" : value.toLowerCase() === "par"
+          if (!matches) continue
+          colOffset = c
+          parRowIndex = ri
+          return
+        }
+      }
+    }
+    findParLabel(true)
+    if (parRowIndex < 0) findParLabel(false)
+    if (parRowIndex < 0) return null
+
+    const headerRow = rows
+      .slice(0, parRowIndex)
+      .reverse()
+      .find((r) => r.some((v) => Number(v) === 1) && r.some((v) => Number(v) === 18))
+    if (!headerRow) return null
+
+    const holeCols = Array.from({ length: 18 }, (_, i) => {
+      const col = headerRow.findIndex((v) => Number(v) === i + 1)
+      return col >= 0 ? col : -1
+    })
+    if (holeCols.some((col) => col < 0)) return null
+
     const findRow = (label: string) =>
-      rows.find((r) => String(r[0] ?? "").trim().toLowerCase() === label.toLowerCase())
-    const numbers = (r: (string | number)[] | undefined) =>
-      (r ?? []).slice(1, 19).map((v) => Number(v) || 0)
+      rows.find((r) => String(r[colOffset] ?? "").trim().toLowerCase() === label.toLowerCase())
+    const numbers = (r: (string | number | Date)[] | undefined) =>
+      holeCols.map((col) => Number(r?.[col]) || 0)
 
     const par = numbers(findRow("Par"))
     const trentScores = numbers(findRow("Trent"))
     const treyScores = numbers(findRow("Trey"))
     if (par.length < 18 || trentScores.length < 18 || treyScores.length < 18) return null
 
-    // Derive course + date from sheet name "Course - YYYY-MM-DD"
+    // Prefer the scorecard header date; some tab names are truncated.
     const dash = name.lastIndexOf(" - ")
     const course = dash > 0 ? name.slice(0, dash).trim() : name
     const rawDate = dash > 0 ? name.slice(dash + 3).trim() : ""
-    const date = normalizeDate(rawDate)
+    const date = normalizeDate(headerRow[colOffset] || rawDate)
 
-    // Hole value can live in a "Hole Value" row, default to 1.
-    const hvRow = findRow("Hole Value") || findRow("Hole Value ($)")
-    const holeValue = hvRow ? Number(hvRow[1]) || 1 : 1
+    // Hole value lives in the header row at a fixed offset from the data
+    // (between player names: col offset + 28 in the normal layout)
+    const hvCol = colOffset + 28
+    let holeValue = headerRow ? Number(headerRow[hvCol]) || 0 : 0
+    // Fallback: check for a dedicated "Hole Value" row
+    if (!holeValue) {
+      const hvRow = findRow("Hole Value") || findRow("Hole Value ($)")
+      holeValue = hvRow ? Number(hvRow[colOffset + 1]) || 1 : 1
+    }
 
-    return buildScorecard(course, date, holeValue, par.slice(0, 18), trentScores.slice(0, 18), treyScores.slice(0, 18))
+    // Read the authoritative Result from the sheet's match-stats sidebar.
+    // The Result row sits in the stats block; columns are offset-adjusted.
+    const resultCol = colOffset + 26
+    let resultOverride: { winner: Player | "Tie"; margin: number; moneyWon: number } | undefined
+    for (const r of rows) {
+      if (r.length <= resultCol + 2) continue
+      if (String(r[resultCol] ?? "").trim() === "Result") {
+        const w = String(r[resultCol + 1] ?? "").trim()
+        const winner: Player | "Tie" = w === "Trent" ? "Trent" : w === "Trey" ? "Trey" : "Tie"
+        const margin = Number(r[resultCol + 2]) || 0
+        const moneyWon = Number(r[resultCol + 3]) || 0
+        resultOverride = { winner, margin, moneyWon }
+        break
+      }
+    }
+
+    return buildScorecard(course, date, holeValue, par.slice(0, 18), trentScores.slice(0, 18), treyScores.slice(0, 18), resultOverride)
   } catch {
     return null
   }
@@ -324,8 +418,7 @@ export async function getStandings(): Promise<Standings> {
       matchNumber: i + 1,
       course: c.course,
       date: c.date,
-      trent: round1(trentPoints),
-      trey: round1(treyPoints),
+      trentLead: round1(trentPoints - treyPoints),
     })
   })
 

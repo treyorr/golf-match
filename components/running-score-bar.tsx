@@ -8,8 +8,9 @@ function stateColor(state: string): string {
 
 function shortLabel(state: string): string {
   if (state === "AS") return "AS"
-  if (state.startsWith("Trent")) return `T▲${state.replace(/\D/g, "")}`
-  if (state.startsWith("Trey")) return `Y▲${state.replace(/\D/g, "")}`
+  const num = state.match(/[\d.]+/)?.[0] ?? ""
+  if (state.startsWith("Trent")) return `T▲${num}`
+  if (state.startsWith("Trey")) return `Y▲${num}`
   return state
 }
 

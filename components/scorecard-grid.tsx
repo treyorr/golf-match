@@ -13,7 +13,7 @@ const TRENT = "var(--color-gold)"
 const TREY = "var(--color-green)"
 
 export function ScorecardGrid({ card }: { card: Scorecard }) {
-  const { par, trentScores, treyScores, trentEmojis, treyEmojis } = card
+  const { par, trentScores, treyScores } = card
   const front = [0, 1, 2, 3, 4, 5, 6, 7, 8]
   const back = [9, 10, 11, 12, 13, 14, 15, 16, 17]
 
@@ -34,6 +34,15 @@ export function ScorecardGrid({ card }: { card: Scorecard }) {
     if (player === "t" && trentLower) return "color-mix(in srgb, var(--color-gold) 30%, transparent)"
     if (player === "y" && !trentLower) return "color-mix(in srgb, var(--color-green) 22%, transparent)"
     return undefined
+  }
+
+  const scoreClass = (score: number, holePar: number) => {
+    const diff = score - holePar
+    if (diff <= -2) return "score-mark score-mark-eagle"
+    if (diff === -1) return "score-mark score-mark-birdie"
+    if (diff === 1) return "score-mark score-mark-bogey"
+    if (diff >= 2) return "score-mark score-mark-double"
+    return "inline-flex h-7 min-w-7 items-center justify-center"
   }
 
   return (
@@ -87,13 +96,13 @@ export function ScorecardGrid({ card }: { card: Scorecard }) {
             <td className={stickyLabel} style={{ color: TRENT }}>Trent</td>
             {front.map((i) => (
               <td key={i} className={`${cell} font-semibold text-ink`} style={{ backgroundColor: winBg("t", i) }}>
-                {trentScores[i]}
+                <span className={scoreClass(trentScores[i], par[i])}>{trentScores[i]}</span>
               </td>
             ))}
             <td className={totalCell}>{sum(trentScores.slice(0, 9))}</td>
             {back.map((i) => (
               <td key={i} className={`${cell} font-semibold text-ink`} style={{ backgroundColor: winBg("t", i) }}>
-                {trentScores[i]}
+                <span className={scoreClass(trentScores[i], par[i])}>{trentScores[i]}</span>
               </td>
             ))}
             <td className={totalCell}>{sum(trentScores.slice(9))}</td>
@@ -101,33 +110,18 @@ export function ScorecardGrid({ card }: { card: Scorecard }) {
             <td className={totalCell} style={{ color: TRENT }}>{toParLabel(sum(trentScores) - totPar)}</td>
           </tr>
 
-          {/* Trent emojis */}
-          <tr>
-            <td className={`${stickyLabel} bg-forest-dark`} />
-            {front.map((i) => (
-              <td key={i} className="border-b border-gold/10 px-2 py-1 text-center text-base leading-none">{trentEmojis[i]}</td>
-            ))}
-            <td className="border-b border-l-2 border-l-gold border-gold/40 bg-parchment" />
-            {back.map((i) => (
-              <td key={i} className="border-b border-gold/10 px-2 py-1 text-center text-base leading-none">{trentEmojis[i]}</td>
-            ))}
-            <td className="border-b border-l-2 border-l-gold border-gold/40 bg-parchment" />
-            <td className="border-b border-l-2 border-l-gold border-gold/40 bg-parchment" />
-            <td className="border-b border-l-2 border-l-gold border-gold/40 bg-parchment" />
-          </tr>
-
           {/* Trey scores */}
           <tr>
             <td className={stickyLabel} style={{ color: "#7fb894" }}>Trey</td>
             {front.map((i) => (
               <td key={i} className={`${cell} font-semibold text-ink`} style={{ backgroundColor: winBg("y", i) }}>
-                {treyScores[i]}
+                <span className={scoreClass(treyScores[i], par[i])}>{treyScores[i]}</span>
               </td>
             ))}
             <td className={totalCell}>{sum(treyScores.slice(0, 9))}</td>
             {back.map((i) => (
               <td key={i} className={`${cell} font-semibold text-ink`} style={{ backgroundColor: winBg("y", i) }}>
-                {treyScores[i]}
+                <span className={scoreClass(treyScores[i], par[i])}>{treyScores[i]}</span>
               </td>
             ))}
             <td className={totalCell}>{sum(treyScores.slice(9))}</td>
@@ -135,20 +129,6 @@ export function ScorecardGrid({ card }: { card: Scorecard }) {
             <td className={totalCell} style={{ color: TREY }}>{toParLabel(sum(treyScores) - totPar)}</td>
           </tr>
 
-          {/* Trey emojis */}
-          <tr>
-            <td className={`${stickyLabel} bg-forest-dark`} />
-            {front.map((i) => (
-              <td key={i} className="px-2 py-1 text-center text-base leading-none">{treyEmojis[i]}</td>
-            ))}
-            <td className="border-l-2 border-l-gold border-gold/40 bg-parchment" />
-            {back.map((i) => (
-              <td key={i} className="px-2 py-1 text-center text-base leading-none">{treyEmojis[i]}</td>
-            ))}
-            <td className="border-l-2 border-l-gold border-gold/40 bg-parchment" />
-            <td className="border-l-2 border-l-gold border-gold/40 bg-parchment" />
-            <td className="border-l-2 border-l-gold border-gold/40 bg-parchment" />
-          </tr>
         </tbody>
       </table>
     </div>

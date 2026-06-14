@@ -86,8 +86,7 @@ export type Standings = {
     matchNumber: number
     course: string
     date: string
-    trent: number
-    trey: number
+    trentLead: number // positive = Trent leading, negative = Trey leading
   }[]
   lastFive: Match[]
 }

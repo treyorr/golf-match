@@ -44,6 +44,48 @@
   }
 }
 
+@layer components {
+  .score-mark {
+    position: relative;
+    display: inline-flex;
+    height: 1.75rem;
+    min-width: 1.75rem;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+  }
+
+  .score-mark::before,
+  .score-mark::after {
+    content: "";
+    position: absolute;
+    inset: 0.1rem;
+    pointer-events: none;
+  }
+
+  .score-mark-birdie::before,
+  .score-mark-eagle::before,
+  .score-mark-eagle::after {
+    border: 2px solid var(--color-crimson);
+    border-radius: 999px;
+  }
+
+  .score-mark-eagle::after {
+    inset: -0.1rem;
+  }
+
+  .score-mark-bogey::before,
+  .score-mark-double::before,
+  .score-mark-double::after {
+    border: 2px solid var(--color-ink);
+    border-radius: 0.12rem;
+  }
+
+  .score-mark-double::after {
+    inset: -0.1rem;
+  }
+}
+
 /* Tabular figures for score columns */
 .tabular {
   font-variant-numeric: tabular-nums;

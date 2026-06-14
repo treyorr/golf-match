@@ -22,8 +22,7 @@ export default async function ScorecardPage({ params }: { params: Promise<{ id: 
 
   const { result } = card
   const winnerName = result.winner
-  const winnerColor =
-    winnerName === "Tie" ? "var(--color-ink)" : winnerName === "Trent" ? "var(--color-gold)" : "var(--color-green)"
+  const winnerColor = winnerName === "Tie" ? "var(--color-parchment)" : winnerName === "Trent" ? "var(--color-gold)" : "#9fcea9"
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
@@ -43,7 +42,7 @@ export default async function ScorecardPage({ params }: { params: Promise<{ id: 
       >
         <div>
           <div className="text-xs uppercase tracking-[0.25em] text-gold-soft">Result</div>
-          <div className="font-display text-2xl font-bold" style={{ color: winnerColor === "var(--color-ink)" ? "var(--color-parchment)" : winnerColor }}>
+          <div className="font-display text-2xl font-bold" style={{ color: winnerColor }}>
             {winnerName === "Tie" ? "Match Halved" : `${winnerName} wins ${result.margin}UP`}
           </div>
         </div>

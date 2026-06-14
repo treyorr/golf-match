@@ -26,16 +26,16 @@ export default async function StandingsPage() {
         <StatBadge label="Matches Played" value={String(standings.matchesPlayed)} sub={`${standings.holesPlayed} holes`} />
       </div>
 
-      {/* Points progression */}
+      {/* Lead swing progression */}
       <section className="mt-10">
-        <SectionTitle>Points Progression</SectionTitle>
+        <SectionTitle>Season Lead Swing</SectionTitle>
         <div className="rounded-sm border border-gold/20 bg-white p-4 shadow-sm sm:p-6">
           <div className="mb-4 flex items-center gap-6 text-sm">
             <span className="flex items-center gap-2">
-              <span className="h-2.5 w-6 rounded-full bg-gold" /> Trent
+              <span className="h-2.5 w-6 rounded-full bg-gold" /> Trent Leading
             </span>
             <span className="flex items-center gap-2">
-              <span className="h-2.5 w-6 rounded-full bg-green" /> Trey
+              <span className="h-2.5 w-6 rounded-full bg-green" /> Trey Leading
             </span>
           </div>
           <PointsChart data={standings.progression} />
