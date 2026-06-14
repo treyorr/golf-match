@@ -30,14 +30,6 @@ export default async function StandingsPage() {
       <section className="mt-10">
         <SectionTitle>Season Lead Swing</SectionTitle>
         <div className="rounded-sm border border-gold/20 bg-white p-4 shadow-sm sm:p-6">
-          <div className="mb-4 flex items-center gap-6 text-sm">
-            <span className="flex items-center gap-2">
-              <span className="h-2.5 w-6 rounded-full bg-gold" /> Trent Leading
-            </span>
-            <span className="flex items-center gap-2">
-              <span className="h-2.5 w-6 rounded-full bg-green" /> Trey Leading
-            </span>
-          </div>
           <PointsChart data={standings.progression} />
         </div>
       </section>

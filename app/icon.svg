@@ -1,0 +1,138 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="100%" height="100%">
+  <defs>
+    <!-- Background sphere gradient to give 3D volume -->
+    <radialGradient id="sphereGrad" cx="35%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="65%" stop-color="#f8fafc" />
+      <stop offset="90%" stop-color="#e2e8f0" />
+      <stop offset="100%" stop-color="#cbd5e1" />
+    </radialGradient>
+    
+    <!-- Subtle shadow gradient for the entire golf ball -->
+    <radialGradient id="ballShadow" cx="50%" cy="50%" r="50%">
+      <stop offset="80%" stop-color="#0f172a" stop-opacity="0.15" />
+      <stop offset="100%" stop-color="#0f172a" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+
+  <!-- Outer soft shadow under the ball -->
+  <ellipse cx="100" cy="105" rx="90" ry="88" fill="url(#ballShadow)" />
+
+  <!-- The Main Golf Ball Sphere -->
+  <circle cx="100" cy="100" r="88" fill="url(#sphereGrad)" stroke="#94a3b8" stroke-width="1.5" />
+
+  <!-- Dimples (using shadow/highlight pair for crisp 3D indent effect) -->
+  <g id="dimples">
+    <!-- Center dimple -->
+    <circle cx="100.5" cy="100.5" r="7.5" fill="#94a3b8" opacity="0.4" />
+    <circle cx="99.5" cy="99.5" r="7.5" fill="#ffffff" />
+
+    <!-- Ring 1 (Radius 24) -->
+    <!-- 0 deg -->
+    <circle cx="124.5" cy="100.5" r="7" fill="#94a3b8" opacity="0.4" />
+    <circle cx="123.5" cy="99.5" r="7" fill="#ffffff" />
+    <!-- 60 deg -->
+    <circle cx="112.5" cy="121.28" r="7" fill="#94a3b8" opacity="0.4" />
+    <circle cx="111.5" cy="120.28" r="7" fill="#ffffff" />
+    <!-- 120 deg -->
+    <circle cx="88.5" cy="121.28" r="7" fill="#94a3b8" opacity="0.4" />
+    <circle cx="87.5" cy="120.28" r="7" fill="#ffffff" />
+    <!-- 180 deg -->
+    <circle cx="76.5" cy="100.5" r="7" fill="#94a3b8" opacity="0.4" />
+    <circle cx="75.5" cy="99.5" r="7" fill="#ffffff" />
+    <!-- 240 deg -->
+    <circle cx="88.5" cy="79.72" r="7" fill="#94a3b8" opacity="0.4" />
+    <circle cx="87.5" cy="78.72" r="7" fill="#ffffff" />
+    <!-- 300 deg -->
+    <circle cx="112.5" cy="79.72" r="7" fill="#94a3b8" opacity="0.4" />
+    <circle cx="111.5" cy="78.72" r="7" fill="#ffffff" />
+
+    <!-- Ring 2 (Radius 48) -->
+    <!-- 0 deg -->
+    <circle cx="148.5" cy="100.5" r="6.5" fill="#94a3b8" opacity="0.4" />
+    <circle cx="147.5" cy="99.5" r="6.5" fill="#ffffff" />
+    <!-- 30 deg -->
+    <circle cx="142.07" cy="124.5" r="6.5" fill="#94a3b8" opacity="0.4" />
+    <circle cx="141.07" cy="123.5" r="6.5" fill="#ffffff" />
+    <!-- 60 deg -->
+    <circle cx="124.5" cy="142.07" r="6.5" fill="#94a3b8" opacity="0.4" />
+    <circle cx="123.5" cy="141.07" r="6.5" fill="#ffffff" />
+    <!-- 90 deg -->
+    <circle cx="100.5" cy="148.5" r="6.5" fill="#94a3b8" opacity="0.4" />
+    <circle cx="99.5" cy="147.5" r="6.5" fill="#ffffff" />
+    <!-- 120 deg -->
+    <circle cx="76.5" cy="142.07" r="6.5" fill="#94a3b8" opacity="0.4" />
+    <circle cx="75.5" cy="141.07" r="6.5" fill="#ffffff" />
+    <!-- 150 deg -->
+    <circle cx="58.93" cy="124.5" r="6.5" fill="#94a3b8" opacity="0.4" />
+    <circle cx="57.93" cy="123.5" r="6.5" fill="#ffffff" />
+    <!-- 180 deg -->
+    <circle cx="52.5" cy="100.5" r="6.5" fill="#94a3b8" opacity="0.4" />
+    <circle cx="51.5" cy="99.5" r="6.5" fill="#ffffff" />
+    <!-- 210 deg -->
+    <circle cx="58.93" cy="76.5" r="6.5" fill="#94a3b8" opacity="0.4" />
+    <circle cx="57.93" cy="75.5" r="6.5" fill="#ffffff" />
+    <!-- 240 deg -->
+    <circle cx="76.5" cy="58.93" r="6.5" fill="#94a3b8" opacity="0.4" />
+    <circle cx="75.5" cy="57.93" r="6.5" fill="#ffffff" />
+    <!-- 270 deg -->
+    <circle cx="100.5" cy="52.5" r="6.5" fill="#94a3b8" opacity="0.4" />
+    <circle cx="99.5" cy="51.5" r="6.5" fill="#ffffff" />
+    <!-- 300 deg -->
+    <circle cx="124.5" cy="58.93" r="6.5" fill="#94a3b8" opacity="0.4" />
+    <circle cx="123.5" cy="57.93" r="6.5" fill="#ffffff" />
+    <!-- 330 deg -->
+    <circle cx="142.07" cy="76.5" r="6.5" fill="#94a3b8" opacity="0.4" />
+    <circle cx="141.07" cy="75.5" r="6.5" fill="#ffffff" />
+
+    <!-- Ring 3 (Radius 70) -->
+    <!-- 0 deg -->
+    <circle cx="170.5" cy="100.5" r="5.5" fill="#94a3b8" opacity="0.35" />
+    <circle cx="169.5" cy="99.5" r="5.5" fill="#ffffff" />
+    <!-- 22.5 deg -->
+    <circle cx="165.2" cy="127.3" r="5.5" fill="#94a3b8" opacity="0.35" />
+    <circle cx="164.2" cy="126.3" r="5.5" fill="#ffffff" />
+    <!-- 45 deg -->
+    <circle cx="149.9" cy="149.9" r="5.5" fill="#94a3b8" opacity="0.35" />
+    <circle cx="148.9" cy="148.9" r="5.5" fill="#ffffff" />
+    <!-- 67.5 deg -->
+    <circle cx="127.3" cy="165.2" r="5.5" fill="#94a3b8" opacity="0.35" />
+    <circle cx="126.3" cy="164.2" r="5.5" fill="#ffffff" />
+    <!-- 90 deg -->
+    <circle cx="100.5" cy="170.5" r="5.5" fill="#94a3b8" opacity="0.35" />
+    <circle cx="99.5" cy="169.5" r="5.5" fill="#ffffff" />
+    <!-- 112.5 deg -->
+    <circle cx="73.7" cy="165.2" r="5.5" fill="#94a3b8" opacity="0.35" />
+    <circle cx="72.7" cy="164.2" r="5.5" fill="#ffffff" />
+    <!-- 135 deg -->
+    <circle cx="51.1" cy="149.9" r="5.5" fill="#94a3b8" opacity="0.35" />
+    <circle cx="50.1" cy="148.9" r="5.5" fill="#ffffff" />
+    <!-- 157.5 deg -->
+    <circle cx="35.8" cy="127.3" r="5.5" fill="#94a3b8" opacity="0.35" />
+    <circle cx="34.8" cy="126.3" r="5.5" fill="#ffffff" />
+    <!-- 180 deg -->
+    <circle cx="30.5" cy="100.5" r="5.5" fill="#94a3b8" opacity="0.35" />
+    <circle cx="29.5" cy="99.5" r="5.5" fill="#ffffff" />
+    <!-- 202.5 deg -->
+    <circle cx="35.8" cy="73.7" r="5.5" fill="#94a3b8" opacity="0.35" />
+    <circle cx="34.8" cy="72.7" r="5.5" fill="#ffffff" />
+    <!-- 225 deg -->
+    <circle cx="51.1" cy="51.1" r="5.5" fill="#94a3b8" opacity="0.35" />
+    <circle cx="50.1" cy="50.1" r="5.5" fill="#ffffff" />
+    <!-- 247.5 deg -->
+    <circle cx="73.7" cy="35.8" r="5.5" fill="#94a3b8" opacity="0.35" />
+    <circle cx="72.7" cy="34.8" r="5.5" fill="#ffffff" />
+    <!-- 270 deg -->
+    <circle cx="100.5" cy="30.5" r="5.5" fill="#94a3b8" opacity="0.35" />
+    <circle cx="99.5" cy="29.5" r="5.5" fill="#ffffff" />
+    <!-- 292.5 deg -->
+    <circle cx="127.3" cy="35.8" r="5.5" fill="#94a3b8" opacity="0.35" />
+    <circle cx="126.3" cy="34.8" r="5.5" fill="#ffffff" />
+    <!-- 315 deg -->
+    <circle cx="149.9" cy="51.1" r="5.5" fill="#94a3b8" opacity="0.35" />
+    <circle cx="148.9" cy="50.1" r="5.5" fill="#ffffff" />
+    <!-- 337.5 deg -->
+    <circle cx="165.2" cy="73.7" r="5.5" fill="#94a3b8" opacity="0.35" />
+    <circle cx="164.2" cy="72.7" r="5.5" fill="#ffffff" />
+  </g>
+</svg>

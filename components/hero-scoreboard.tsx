@@ -28,10 +28,10 @@ function PlayerPanel({
         )}
       </div>
 
-      <div className="tabular mt-4 font-display text-7xl font-black leading-none text-gold sm:text-8xl">
+      <div className="tabular mt-0 font-display text-7xl font-black leading-none text-gold sm:text-8xl">
         {points}
       </div>
-      <div className="mt-1 text-xs uppercase tracking-[0.2em] text-gold-soft">Points</div>
+      <div className="mt-2 text-xs uppercase tracking-[0.2em] text-gold-soft">Points</div>
 
       <div className="mt-6 w-full border-t border-gold/30 pt-4">
         <div className="tabular font-display text-2xl font-bold text-parchment">${money}</div>

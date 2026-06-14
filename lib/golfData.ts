@@ -419,6 +419,7 @@ export async function getStandings(): Promise<Standings> {
       course: c.course,
       date: c.date,
       trentLead: round1(trentPoints - treyPoints),
+      trentMoneyLead: round1(trentMoney - treyMoney),
     })
   })
 
